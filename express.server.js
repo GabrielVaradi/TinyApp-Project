@@ -20,11 +20,13 @@ var urlDatabase = {
 
 app.get("/", (req, res) => {
   res.send("Hello!");
+  //Goes to page / and sends Hello
 });
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]
-  // console.log(longURL)
+  // sets longURL to the value of the key (even if already randomed)
+  //then redirects to the link
   res.redirect(longURL);
 });
 
@@ -40,7 +42,7 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  // console.log(req.body);
+  // generate a random number, create a key-value in urlDatabase with the number as key and  the long URL (request) as value
   let rand_url = generateRandomString()
   urlDatabase[rand_url] = req.body.longURL
   console.log(urlDatabase)

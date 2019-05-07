@@ -2,10 +2,11 @@
   "name": "tinyapp-project",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "start": "./node_modules/.bin/nodemon -L express_server.js",
+  "test": "echo \"Error: no test specified\" && exit 1"
+},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/GabrielVaradi/TinyApp-Project.git"
@@ -25,5 +26,8 @@
     "body-parser": "^1.19.0",
     "ejs": "^2.6.1",
     "express": "^4.16.4"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.0"
   }
 }
