@@ -7,8 +7,10 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 
+let randomString = generateRandomString()
+
 function generateRandomString() {
-return Math.random().toString(36).substring(7);
+  return Math.random().toString(36).substring(7);
 }
 
 var urlDatabase = {
@@ -19,6 +21,12 @@ var urlDatabase = {
 
 app.get("/", (req, res) => {
   res.send("Hello!");
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[randomString]
+  // console.log(longURL)
+  res.redirect(longURL);
 });
 
 app.get("/hello", (req, res) => {
@@ -33,8 +41,8 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);
-  let randomString = generateRandomString()
+  // console.log(req.body);
+
   urlDatabase[randomString] = req.body.longURL
   console.log(urlDatabase)
   res.redirect(`/urls/:${randomString}`);
