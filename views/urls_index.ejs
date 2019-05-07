@@ -17,9 +17,10 @@
 
 <ul>
     <% Object.keys(urls).forEach(function(urlKey) { %>
-        <li><%= urlKey %> - <%= urls[urlKey]%></li>
+        <li><%= urlKey %> - <%= urls[urlKey]%></li><form method="POST" action="/urls/<%= urlKey %>/delete"><button type="submit" class="btn btn-danger">Delete</button></form>
     <% }); %>
 
 
 </body>
 </html>
+

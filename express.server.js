@@ -45,9 +45,14 @@ app.post("/urls", (req, res) => {
   // generate a random number, create a key-value in urlDatabase with the number as key and  the long URL (request) as value
   let rand_url = generateRandomString()
   urlDatabase[rand_url] = req.body.longURL
-  console.log(urlDatabase)
+  // console.log(urlDatabase)
   res.redirect(`/urls/${rand_url}`);
 });
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  delete urlDatabase[req.params.shortURL]
+  res.redirect("/urls")
+})
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
