@@ -1,0 +1,24 @@
+{
+  "name": "tinyapp-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GabrielVaradi/TinyApp-Project.git"
+  },
+  "keywords": [
+    "tiny",
+    "app",
+    "lighthouse"
+  ],
+  "author": "Gabriel Varadi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GabrielVaradi/TinyApp-Project/issues"
+  },
+  "homepage": "https://github.com/GabrielVaradi/TinyApp-Project#readme"
+}
