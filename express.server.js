@@ -10,9 +10,9 @@ var urlDatabase = {
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
-// app.get("/url", (req, res) => {
-//   res.send(JSON.parse(urlDatabase));
-// });
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
