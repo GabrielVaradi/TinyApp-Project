@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/GabrielVaradi/TinyApp-Project/issues"
   },
-  "homepage": "https://github.com/GabrielVaradi/TinyApp-Project#readme"
+  "homepage": "https://github.com/GabrielVaradi/TinyApp-Project#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
 }
