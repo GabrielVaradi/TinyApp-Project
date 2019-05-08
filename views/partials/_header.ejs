@@ -1,2 +1,30 @@
 TinyApp
 
+<nav class="navbar navbar-default" role="navigation">
+<div class="container-fluid">
+
+
+
+<% if(username){ %>
+<form class="form-inline" method="POST" action="/logout %>">
+<h2> Welcome <%= username %> !</h2>
+<button type="submit" class="btn btn-primary">Logout :(</button>
+
+</form>
+
+<% } else{ %>
+<form class="form-inline" method="POST" action="/login %>">
+<h3>Your name my good sir:
+   <input name ="username" class="form-control" type="text"  placeholder="username" style="width: 300px; margin: 1em">
+</h3>
+
+<button type="submit" class="btn btn-primary">Sign in</button>
+<% } %>
+</form>
+
+</div>
+</nav>
+
+
+
+
