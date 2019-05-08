@@ -5,20 +5,20 @@ TinyApp
 
 
 
-<% if(username){ %>
+<% if(users[user]){ %>
 <form class="form-inline" method="POST" action="/logout %>">
-<h2> Welcome <%= username %> !</h2>
+<h2> Welcome <%= users[user].email %> !</h2>
 <button type="submit" class="btn btn-primary">Logout :(</button>
 
 </form>
 
 <% } else{ %>
-<form class="form-inline" method="POST" action="/login %>">
-<h3>Your name my good sir:
-   <input name ="username" class="form-control" type="text"  placeholder="username" style="width: 300px; margin: 1em">
-</h3>
-
-<button type="submit" class="btn btn-primary">Sign in</button>
+<form method="GET" action="/register %>">
+<button type="submit" class="btn btn-link">Register</button>
+</form>
+<form method="GET" action="/login %>">
+<button type="submit" class="btn btn-link">Login</button>
+</form>
 <% } %>
 </form>
 

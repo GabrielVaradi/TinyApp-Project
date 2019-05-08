@@ -77,7 +77,8 @@ app.get("/hello", (req, res) => {
 app.get("/urls", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"]
+    users: users,
+    user: req.cookies["user_id"]
   }
   res.render("urls_index", templateVars);
 });
@@ -108,14 +109,16 @@ app.post("/register", (req, res) => {
       res.send("400")
     } else {
       const result = addUsers(req.body, randomId)
-      console.log(emailAlreadyUsed(users, req.body.password))
-      console.log(result)
       res.cookie('user_id', randomId)
       res.redirect('/urls')
     }
   } else {
     res.send("401")
   }
+})
+
+app.get("/login", (req, res) => { //what does it do?
+  res.render("urls_login")
 })
 
 app.post("/urls/:shortURL", (req, res) => { //what does it do?
@@ -126,7 +129,7 @@ app.post("/urls/:shortURL", (req, res) => { //what does it do?
 })
 
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username)
+  res.cookie('user_id', req.body.user_id)
   res.status(302).redirect('/urls')
 })
 
@@ -139,7 +142,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {
-    username: req.cookies["username"]
+    user: req.cookies["user_id"],
+    users: users
   };
 
   res.render("urls_new", templateVars);
@@ -154,7 +158,8 @@ app.get("/urls/:shortURL", (req, res) => {
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies["username"]
+    users: users,
+    user: req.cookies["user_id"]
   };
   res.render("urls_show", templateVars);
 });
