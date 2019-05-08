@@ -23,7 +23,7 @@ const users = {
     email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
+  "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
     password: "dishwasher-funk"
@@ -35,7 +35,7 @@ function generateRandomString() {
 }
 
 var updateURL = (shortURL, longURL) => {
-// updating url in urlDatabse
+  // updating url in urlDatabse
   return urlDatabase[shortURL] = longURL
 }
 const addUsers = (userObject, randomId) => {
@@ -46,7 +46,16 @@ const addUsers = (userObject, randomId) => {
   }
   users[randomId] = newUser
 
-  return users
+  return [users, randomId]
+}
+
+const emailAlreadyUsed = (users, emailToVerify) => {
+  for (const findEmail in users) {
+    if (emailToVerify === users[findEmail].email) {
+      return true
+    }
+  }
+  return false
 }
 
 app.get("/", (req, res) => {
@@ -87,20 +96,26 @@ app.post("/urls", (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-const cooki = req.cookies["username"]
-res.clearCookie('username')
-res.status(302).redirect('/urls')
+  const cooki = req.cookies["username"]
+  res.clearCookie('username')
+  res.status(302).redirect('/urls')
 })
 
-app.post("/register", (req,res) => {
+app.post("/register", (req, res) => {
   const randomId = generateRandomString()
-  addUsers(req.body, randomId)
-  const emptyEmailOrPass = (users[randomId][randomId].email === false || !users[randomId][randomId].password === false)
-  if (emptyEmailOrPass) {
-    res.send("400")
+  if (req.body.email && req.body.password) {
+    if (emailAlreadyUsed(users, req.body.email)) {
+      res.send("400")
+    } else {
+      const result = addUsers(req.body, randomId)
+      console.log(emailAlreadyUsed(users, req.body.password))
+      console.log(result)
+      res.cookie('user_id', randomId)
+      res.redirect('/urls')
+    }
+  } else {
+    res.send("401")
   }
-  res.cookie('user_id', randomId)
-  res.redirect('/urls')
 })
 
 app.post("/urls/:shortURL", (req, res) => { //what does it do?
@@ -111,8 +126,8 @@ app.post("/urls/:shortURL", (req, res) => { //what does it do?
 })
 
 app.post('/login', (req, res) => {
-res.cookie('username', req.body.username)
-res.status(302).redirect('/urls')
+  res.cookie('username', req.body.username)
+  res.status(302).redirect('/urls')
 })
 
 
