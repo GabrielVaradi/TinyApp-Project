@@ -58,6 +58,15 @@ const emailAlreadyUsed = (users, emailToVerify) => {
   return false
 }
 
+const comparePasswords = (users, passwordToVerify) => {
+  for (const findPassword in users) {
+    if (passwordToVerify === users[findPassword].password) {
+      return true
+    }
+  }
+  return false
+}
+
 app.get("/", (req, res) => {
   res.send("Hello!");
   //Goes to page / and sends Hello
@@ -84,7 +93,12 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  res.render("urls_register")
+  let templateVars = {
+    urls: urlDatabase,
+    users: users,
+    user: req.cookies["user_id"]
+  }
+  res.render("urls_register", templateVars)
 })
 
 
@@ -97,8 +111,7 @@ app.post("/urls", (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-  const cooki = req.cookies["username"]
-  res.clearCookie('username')
+  res.clearCookie('user_id')
   res.status(302).redirect('/urls')
 })
 
@@ -117,8 +130,14 @@ app.post("/register", (req, res) => {
   }
 })
 
-app.get("/login", (req, res) => { //what does it do?
-  res.render("urls_login")
+app.get("/login", (req, res) => {
+
+let templateVars = {
+    urls: urlDatabase,
+    users: users,
+    user: req.cookies["user_id"]
+  }
+  res.render("urls_login", templateVars)
 })
 
 app.post("/urls/:shortURL", (req, res) => { //what does it do?
@@ -129,8 +148,16 @@ app.post("/urls/:shortURL", (req, res) => { //what does it do?
 })
 
 app.post('/login', (req, res) => {
+  if (!emailAlreadyUsed(users, req.body.email)){
+    res.send("403")
+  }
+  if (!comparePasswords(users, req.body.password)){
+    res.send("404")
+  }
+  else {
   res.cookie('user_id', req.body.user_id)
   res.status(302).redirect('/urls')
+}
 })
 
 
