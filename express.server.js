@@ -38,10 +38,9 @@ var updateURL = (shortURL, longURL) => {
 // updating url in urlDatabse
   return urlDatabase[shortURL] = longURL
 }
-const addUsers = (userObject) => {
-  const randomId = generateRandomString()
+const addUsers = (userObject, randomId) => {
   const newUser = {
-    id: generateRandomString(),
+    id: randomId,
     email: userObject.email,
     password: userObject.password
   }
@@ -93,9 +92,15 @@ res.clearCookie('username')
 res.status(302).redirect('/urls')
 })
 
-app.post("urls/register", (req,res) => {
-  //add users to object
-  addUsers()
+app.post("/register", (req,res) => {
+  const randomId = generateRandomString()
+  addUsers(req.body, randomId)
+  const emptyEmailOrPass = (users[randomId][randomId].email === false || !users[randomId][randomId].password === false)
+  if (emptyEmailOrPass) {
+    res.send("400")
+  }
+  res.cookie('user_id', randomId)
+  res.redirect('/urls')
 })
 
 app.post("/urls/:shortURL", (req, res) => { //what does it do?
