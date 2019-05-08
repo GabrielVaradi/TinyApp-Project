@@ -12,15 +12,6 @@ app.use(bodyParser.urlencoded({
 }));
 
 
-function generateRandomString() {
-  return Math.random().toString(36).substring(7);
-}
-
-var updateURL = (shortURL, longURL) => {
-// updating quote in urlDatabse
-  return urlDatabase[shortURL] = longURL
-}
-
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -39,6 +30,25 @@ const users = {
   }
 }
 
+function generateRandomString() {
+  return Math.random().toString(36).substring(7);
+}
+
+var updateURL = (shortURL, longURL) => {
+// updating url in urlDatabse
+  return urlDatabase[shortURL] = longURL
+}
+const addUsers = (userObject) => {
+  const randomId = generateRandomString()
+  const newUser = {
+    id: generateRandomString(),
+    email: userObject.email,
+    password: userObject.password
+  }
+  users[randomId] = newUser
+
+  return users
+}
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -81,6 +91,11 @@ app.post('/logout', (req, res) => {
 const cooki = req.cookies["username"]
 res.clearCookie('username')
 res.status(302).redirect('/urls')
+})
+
+app.post("urls/register", (req,res) => {
+  //add users to object
+  addUsers()
 })
 
 app.post("/urls/:shortURL", (req, res) => { //what does it do?
