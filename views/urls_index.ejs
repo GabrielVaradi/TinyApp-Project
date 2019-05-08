@@ -12,12 +12,22 @@
     <h1><% include ./partials/_header %></h1>
 </header>
 <body style="font-size:20px; padding:50px;">
-    <h3><%=href='Create TinyURL'%></h3>
+    <h3><%='Create TinyURL'%></h3>
     <h2>My URLs</h2>
 
-<ul>
+
     <% Object.keys(urls).forEach(function(urlKey) { %>
-        <li><%= urlKey %> - <%= urls[urlKey]%></li><form method="POST" action="/urls/<%= urlKey %>/delete"><button type="submit" class="btn btn-danger">Delete</button></form>
+        <li>
+          <%=urlKey %> - <%= urls[urlKey]%>
+          <form method="POST" action="/urls/<%= urlKey %>/delete">
+              <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+
+        <form  method="GET" action="/urls/<%= urlKey %>">
+          <button type="submit" class="btn btn-link">Edit</button>
+        </form>
+          </li>
+
     <% }); %>
 
 

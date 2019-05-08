@@ -12,6 +12,11 @@ function generateRandomString() {
   return Math.random().toString(36).substring(7);
 }
 
+var updateURL = (shortURL, longURL) => {
+// updating quote in urlDatabse
+  return urlDatabase[shortURL] = longURL
+}
+
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -41,6 +46,8 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+
+
 app.post("/urls", (req, res) => {
   // generate a random number, create a key-value in urlDatabase with the number as key and  the long URL (request) as value
   let rand_url = generateRandomString()
@@ -49,10 +56,21 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${rand_url}`);
 });
 
+
+app.post("/urls/:shortURL", (req, res) => { //what does it do?
+  console.log(req.body)
+  const shortURL = req.params.shortURL
+  const longURL = req.body.longURL
+  updateURL(shortURL, longURL)
+  res.status(302).redirect('/urls')
+})
+
+
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL]
   res.redirect("/urls")
 })
+
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
