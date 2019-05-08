@@ -67,6 +67,14 @@ const comparePasswords = (users, passwordToVerify) => {
   return false
 }
 
+const findEmailToId = (users, Email) => {
+  for (const findId in users) {
+    if (Email === users[findId].email) {
+      return users[findId].id
+    }
+  }
+}
+
 //## GET PART ##//
 //## <('.')>  ##//
 //## GET PART ##//
@@ -158,25 +166,25 @@ app.post("/register", (req, res) => {
   const randomId = generateRandomString()
   if (req.body.email && req.body.password) {
     if (emailAlreadyUsed(users, req.body.email)) {
-      res.send("400")
+      res.send("400 : Email already used")
     } else {
-      const result = addUsers(req.body, randomId)
+      addUsers(req.body, randomId)
       res.cookie('user_id', randomId)
       res.redirect('/urls')
     }
   } else {
-    res.send("401")
+    res.send("400 : Enter a email and a password")
   }
 })
 
 app.post('/login', (req, res) => {
   if (!emailAlreadyUsed(users, req.body.email)) {
-    res.send("403")
+    res.send("403: Email cannot be found")
   }
   if (!comparePasswords(users, req.body.password)) {
-    res.send("404")
+    res.send("403: Wrong password")
   } else {
-    res.cookie('user_id')
+    res.cookie('user_id', findEmailToId(users, req.body.email))
     res.status(302).redirect('/urls')
   }
 })
