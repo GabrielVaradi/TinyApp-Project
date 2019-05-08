@@ -67,6 +67,10 @@ const comparePasswords = (users, passwordToVerify) => {
   return false
 }
 
+//## GET PART ##//
+//## <('.')>  ##//
+//## GET PART ##//
+
 app.get("/", (req, res) => {
   res.send("Hello!");
   //Goes to page / and sends Hello
@@ -101,71 +105,15 @@ app.get("/register", (req, res) => {
   res.render("urls_register", templateVars)
 })
 
-
-app.post("/urls", (req, res) => {
-  // generate a random number, create a key-value in urlDatabase with the number as key and  the long URL (request) as value
-  let rand_url = generateRandomString()
-  urlDatabase[rand_url] = req.body.longURL
-  // console.log(urlDatabase)
-  res.redirect(`/urls/${rand_url}`);
-});
-
-app.post('/logout', (req, res) => {
-  res.clearCookie('user_id')
-  res.status(302).redirect('/urls')
-})
-
-app.post("/register", (req, res) => {
-  const randomId = generateRandomString()
-  if (req.body.email && req.body.password) {
-    if (emailAlreadyUsed(users, req.body.email)) {
-      res.send("400")
-    } else {
-      const result = addUsers(req.body, randomId)
-      res.cookie('user_id', randomId)
-      res.redirect('/urls')
-    }
-  } else {
-    res.send("401")
-  }
-})
-
 app.get("/login", (req, res) => {
 
-let templateVars = {
+  let templateVars = {
     urls: urlDatabase,
     users: users,
     user: req.cookies["user_id"]
   }
   res.render("urls_login", templateVars)
 })
-
-app.post("/urls/:shortURL", (req, res) => { //what does it do?
-  const shortURL = req.params.shortURL
-  const longURL = req.body.longURL
-  updateURL(shortURL, longURL)
-  res.status(302).redirect('/urls')
-})
-
-app.post('/login', (req, res) => {
-  if (!emailAlreadyUsed(users, req.body.email)){
-    res.send("403")
-  }
-  if (!comparePasswords(users, req.body.password)){
-    res.send("404")
-  }
-  else {
-  res.cookie('user_id', req.body.user_id)
-  res.status(302).redirect('/urls')
-}
-})
-
-
-app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL]
-  res.redirect("/urls")
-})
-
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {
@@ -192,6 +140,65 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 
+//## POST PART ##//
+//## <('.')>  ##//
+//## POST PART ##//
+
+
+app.post("/urls", (req, res) => {
+  // generate a random number, create a key-value in urlDatabase with the number as key and  the long URL (request) as value
+  let rand_url = generateRandomString()
+  urlDatabase[rand_url] = req.body.longURL
+  // console.log(urlDatabase)
+  res.redirect(`/urls/${rand_url}`);
+});
+
+
+app.post("/register", (req, res) => {
+  const randomId = generateRandomString()
+  if (req.body.email && req.body.password) {
+    if (emailAlreadyUsed(users, req.body.email)) {
+      res.send("400")
+    } else {
+      const result = addUsers(req.body, randomId)
+      res.cookie('user_id', randomId)
+      res.redirect('/urls')
+    }
+  } else {
+    res.send("401")
+  }
+})
+
+app.post('/login', (req, res) => {
+  if (!emailAlreadyUsed(users, req.body.email)) {
+    res.send("403")
+  }
+  if (!comparePasswords(users, req.body.password)) {
+    res.send("404")
+  } else {
+    res.cookie('user_id')
+    res.status(302).redirect('/urls')
+  }
+})
+
+app.post("/urls/:shortURL", (req, res) => { //what does it do?
+  const shortURL = req.params.shortURL
+  const longURL = req.body.longURL
+  updateURL(shortURL, longURL)
+  res.status(302).redirect('/urls')
+})
+
+
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  delete urlDatabase[req.params.shortURL]
+  res.redirect("/urls")
+})
+
+app.post('/logout', (req, res) => {
+  res.clearCookie('user_id')
+  res.status(302).redirect('/urls')
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
