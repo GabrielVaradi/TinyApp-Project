@@ -128,7 +128,10 @@ app.get("/urls/new", (req, res) => {
     user: req.cookies["user_id"],
     users: users
   };
-
+  //if not logged in
+  if (!req.cookies["user_id"]) {
+    res.redirect('/login')
+  }
   res.render("urls_new", templateVars);
 });
 
@@ -149,7 +152,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 
 //## POST PART ##//
-//## <('.')>  ##//
+//##  <('.')>  ##//
 //## POST PART ##//
 
 
