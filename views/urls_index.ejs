@@ -15,10 +15,10 @@
     <h3><%='Create TinyURL'%></h3>
     <h2>My URLs</h2>
 
-
-    <% Object.keys(urls).forEach(function(urlKey) { %>
+<% if(URL) { %>
+    <% Object.keys(URL).forEach(function(urlKey) { %>
         <li>
-          <%=urlKey %> - <%= urls[urlKey]%>
+          <%= urlKey %> - <%= URL[urlKey].longURL %>
           <form method="POST" action="/urls/<%= urlKey %>/delete">
               <button type="submit" class="btn btn-danger">Delete</button>
         </form>
@@ -27,8 +27,13 @@
           <button type="submit" class="btn btn-link">Edit</button>
         </form>
           </li>
+<% }); %>
 
-    <% }); %>
+<% }else { %>
+Please login first
+<% } %>
+
+
 
 
 </body>

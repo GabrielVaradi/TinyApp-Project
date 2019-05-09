@@ -13,8 +13,8 @@ app.use(bodyParser.urlencoded({
 
 
 var urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  // "b2xVn2": "http://www.lighthouselabs.ca",
+  // "9sm5xK": "http://www.google.com"
 };
 
 const users = {
@@ -34,9 +34,12 @@ function generateRandomString() {
   return Math.random().toString(36).substring(7);
 }
 
-var updateURL = (shortURL, longURL) => {
-  // updating url in urlDatabse
-  return urlDatabase[shortURL] = longURL
+var updateURL = (shortURL, longURL, userID) => {
+  dataBaseObj = {
+    'longURL': longURL,
+    'userID': userID
+  }
+  return urlDatabase[shortURL] = dataBaseObj
 }
 const addUsers = (userObject, randomId) => {
   const newUser = {
@@ -75,6 +78,17 @@ const findEmailToId = (users, Email) => {
   }
 }
 
+const urlsForUser = id => {
+  let longURLS = {}
+  for (const shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      longURLS[shortURL] = urlDatabase[shortURL]
+    }
+  }
+
+  return longURLS
+}
+
 //## GET PART ##//
 //## <('.')>  ##//
 //## GET PART ##//
@@ -99,8 +113,11 @@ app.get("/urls", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
     users: users,
-    user: req.cookies["user_id"]
+    user: req.cookies["user_id"],
+    URL: urlsForUser(req.cookies["user_id"])
   }
+  // console.log(urlDatabase)
+  console.log(templateVars.URL)
   res.render("urls_index", templateVars);
 });
 
@@ -159,8 +176,7 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   // generate a random number, create a key-value in urlDatabase with the number as key and  the long URL (request) as value
   let rand_url = generateRandomString()
-  urlDatabase[rand_url] = req.body.longURL
-  // console.log(urlDatabase)
+  updateURL(rand_url, req.body.longURL, req.cookies['user_id'])
   res.redirect(`/urls/${rand_url}`);
 });
 
@@ -195,7 +211,7 @@ app.post('/login', (req, res) => {
 app.post("/urls/:shortURL", (req, res) => { //what does it do?
   const shortURL = req.params.shortURL
   const longURL = req.body.longURL
-  updateURL(shortURL, longURL)
+  updateURL(shortURL, longURL, req.cookies['user_id'])
   res.status(302).redirect('/urls')
 })
 
