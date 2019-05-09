@@ -1,20 +1,18 @@
-var express = require("express");
-var app = express();
-var PORT = 8080;
-var cookieParser = require('cookie-parser')
-app.use(cookieParser())
-
-
-app.set("view engine", "ejs")
+const express = require("express");
+const bcrypt = require('bcrypt');
+const app = express();
+const PORT = 8080;
+const cookieParser = require('cookie-parser')
 const bodyParser = require("body-parser");
+
+app.use(cookieParser())
+app.set("view engine", "ejs")
 app.use(bodyParser.urlencoded({
   extended: true
 }));
 
 
-var urlDatabase = {
-
-};
+const urlDatabase = {};
 
 const users = {
   "userRandomID": {
@@ -44,7 +42,7 @@ const addUsers = (userObject, randomId) => {
   const newUser = {
     id: randomId,
     email: userObject.email,
-    password: userObject.password
+    password: bcrypt.hashSync(userObject.password, 10)
   }
   users[randomId] = newUser
 
@@ -62,7 +60,7 @@ const emailAlreadyUsed = (users, emailToVerify) => {
 
 const comparePasswords = (users, passwordToVerify) => {
   for (const findPassword in users) {
-    if (passwordToVerify === users[findPassword].password) {
+    if (bcrypt.compareSync(passwordToVerify, users[findPassword].password)) {
       return true
     }
   }
@@ -115,7 +113,7 @@ app.get("/urls", (req, res) => {
     user: req.cookies["user_id"],
     URL: urlsForUser(req.cookies["user_id"])
   }
-  // console.log(urlDatabase)
+  console.log(users)
   res.render("urls_index", templateVars);
 });
 
@@ -194,6 +192,9 @@ app.post("/register", (req, res) => {
   }
 })
 
+
+
+
 app.post('/login', (req, res) => {
   if (!emailAlreadyUsed(users, req.body.email)) {
     res.send("403: Email cannot be found")
@@ -219,19 +220,12 @@ app.post("/urls/:shortURL", (req, res) => { //what does it do?
 
 })
 
-
-
 app.post("/urls/:shortURL/delete", (req, res) => {
   // if the user ID in the link is the same as the current user ID, allow to delete
   if (req.cookies['user_id'] === urlDatabase[req.params.shortURL].userID) {
     delete urlDatabase[req.params.shortURL]
     res.redirect("/urls")
   }
-
-  //  else {
-  //   res.redirect("/login")
-  // }
-
 
 })
 
