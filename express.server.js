@@ -143,11 +143,15 @@ app.post('/urls', (req, res) => {
 
 
 app.get('/register', (req, res) => {
-  const templateVars = {
-    users: users,
-    user: req.session.user_id
-  };
-  res.status(200).render('urls_register', templateVars);
+  if (!req.session.user_id) {
+    const templateVars = {
+      users: users,
+      user: req.session.user_id
+    };
+    res.status(200).render('urls_register', templateVars);
+  } else {
+    res.status(302).redirect('/urls')
+  }
 });
 
 app.post('/register', (req, res) => {
@@ -167,11 +171,15 @@ app.post('/register', (req, res) => {
 
 app.get('/login', (req, res) => {
 
-  const templateVars = {
-    users: users,
-    user: req.session.user_id
-  };
-  res.status(200).render('urls_login', templateVars)
+  if (!req.session.user_id) {
+    const templateVars = {
+      users: users,
+      user: req.session.user_id
+    };
+    res.status(200).render('urls_login', templateVars)
+  } else {
+    res.status(302).redirect('/urls')
+  }
 });
 
 app.post('/login', (req, res) => {
