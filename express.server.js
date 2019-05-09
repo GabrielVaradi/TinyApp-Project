@@ -23,6 +23,16 @@ const users = {};
 
 const generateRandomString = () => Math.random().toString(36).substring(7);
 
+const createShortURL = (longURL, userID) => {
+  const rand_url = generateRandomString();
+  databaseObj = {
+    'longURL': longURL,
+    'userID': userID
+  }
+  urlDatabase[rand_url] = databaseObj
+  return rand_url;
+};
+
 const updateURL = (shortURL, longURL, userID) => {
   databaseObj = {
     'longURL': longURL,
@@ -135,8 +145,7 @@ app.post('/urls', (req, res) => {
   if (!req.session.user_id) {
     res.status(403).send('403: Please login first <a href=/login><button type="submit" class="btn btn-link">Login</button></a>')
   } else {
-    const rand_url = generateRandomString();
-    updateURL(rand_url, req.body.longURL, req.session.user_id);
+    const rand_url = createShortURL(req.body.longURL, req.session.user_id);
     res.status(302).redirect(`/urls/${rand_url}`);
   }
 });
