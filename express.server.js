@@ -18,37 +18,19 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000
 }))
 
-
-
-
-
-
-
 const urlDatabase = {};
-
-const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
-  }
-}
+const users = {}
 
 function generateRandomString() {
   return Math.random().toString(36).substring(7);
 }
 
-var updateURL = (shortURL, longURL, userID) => {
-  dataBaseObj = {
+const updateURL = (shortURL, longURL, userID) => {
+  databaseObj = {
     'longURL': longURL,
     'userID': userID
   }
-  return urlDatabase[shortURL] = dataBaseObj
+  return urlDatabase[shortURL] = databaseObj
 }
 const addUsers = (userObject, randomId) => {
   const newUser = {
