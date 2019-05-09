@@ -116,7 +116,6 @@ app.get("/urls", (req, res) => {
     URL: urlsForUser(req.cookies["user_id"])
   }
   // console.log(urlDatabase)
-  console.log(templateVars.URL)
   res.render("urls_index", templateVars);
 });
 
@@ -209,22 +208,36 @@ app.post('/login', (req, res) => {
 
 app.post("/urls/:shortURL", (req, res) => { //what does it do?
 
-  const shortURL = req.params.shortURL
-  const longURL = req.body.longURL
-  updateURL(shortURL, longURL, req.cookies['user_id'])
-  res.status(302).redirect('/urls')
+  if (req.cookies['user_id'] === urlDatabase[req.params.shortURL].userID) {
+    const shortURL = req.params.shortURL
+    const longURL = req.body.longURL
+    updateURL(shortURL, longURL, req.cookies['user_id'])
+    res.status(302).redirect('/urls')
+  } else {
+    res.redirect('/login')
+  }
+
 })
 
 
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL]
-  res.redirect("/urls")
+  // if the user ID in the link is the same as the current user ID, allow to delete
+  if (req.cookies['user_id'] === urlDatabase[req.params.shortURL].userID) {
+    delete urlDatabase[req.params.shortURL]
+    res.redirect("/urls")
+  }
+
+  //  else {
+  //   res.redirect("/login")
+  // }
+
+
 })
 
 app.post('/logout', (req, res) => {
   res.clearCookie('user_id')
-  res.status(302).redirect('/urls')
+  res.status(302).redirect('/login')
 })
 
 app.listen(PORT, () => {
