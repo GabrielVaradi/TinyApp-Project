@@ -60,7 +60,7 @@ const comparePasswords = (users, passwordToVerify) => {
   return false;
 };
 
-const findEmailToId = (users, Email) => {
+const findEmailMatchingId = (users, Email) => {
   for (const findId in users) {
     if (Email === users[findId].email) {
       return users[findId].id;
@@ -78,6 +78,16 @@ const urlsForUser = id => {
   return longURLS;
 };
 
+const findUserIDWithShortURL = id => {
+  for (const shortURL in urlDatabase){
+    console.log(shortURL)
+    console.log(id)
+    if(shortURL === id){
+      return urlDatabase[shortURL].userID
+    }
+  }
+  return false
+}
 
 const checkIfIdExist = randomID => {
   for (const shortURL in urlDatabase) {
@@ -100,8 +110,6 @@ app.get('/', (req, res) => {
 
 app.get('/u/:shortURL', (req, res) => {
   res.redirect(urlDatabase[req.params.shortURL]);
-  // sets longURL to the value of the key (even if already randomed)
-  //then redirects to the link
 });
 
 app.get('/hello', (req, res) => {
@@ -168,7 +176,7 @@ app.post('/login', (req, res) => {
   if (!comparePasswords(users, req.body.password)) {
     res.send('403: Wrong password');
   } else {
-    req.session.user_id = findEmailToId(users, req.body.email);
+    req.session.user_id = findEmailMatchingId(users, req.body.email);
     res.status(302).redirect('/urls');
   }
 });
@@ -193,6 +201,12 @@ app.get('/urls.json', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   if (!checkIfIdExist(req.params.shortURL)) {
     res.send('404 Not found ;)')
+  }
+  if (!req.session.user_id) {
+    res.send('Please login first')
+  }
+  if (findUserIDWithShortURL(req.params.shortURL) !== req.session.user_id) {
+    res.send('You do not own this short URL!')
   } else {
     const templateVars = {
       shortURL: req.params.shortURL,
