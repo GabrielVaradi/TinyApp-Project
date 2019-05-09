@@ -21,9 +21,7 @@ app.use(cookieSession({
 const urlDatabase = {};
 const users = {}
 
-function generateRandomString() {
-  return Math.random().toString(36).substring(7);
-}
+const generateRandomString = () => Math.random().toString(36).substring(7);
 
 const updateURL = (shortURL, longURL, userID) => {
   databaseObj = {
@@ -32,6 +30,7 @@ const updateURL = (shortURL, longURL, userID) => {
   }
   return urlDatabase[shortURL] = databaseObj
 }
+
 const addUsers = (userObject, randomId) => {
   const newUser = {
     id: randomId,
@@ -80,9 +79,6 @@ const urlsForUser = id => {
   return longURLS
 }
 
-//## GET PART ##//
-//## <('.')>  ##//
-//## GET PART ##//
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -101,8 +97,7 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let templateVars = {
-    urls: urlDatabase,
+  const templateVars = {
     users: users,
     user: req.session.user_id,
     URL: urlsForUser(req.session.user_id)
@@ -111,66 +106,21 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+app.post("/urls", (req, res) => {
+  // generate a random number, create a key-value in urlDatabase with the number as key and  the long URL (request) as value
+  const rand_url = generateRandomString()
+  updateURL(rand_url, req.body.longURL, req.session.user_id)
+  res.redirect(`/urls/${rand_url}`);
+});
+
+
 app.get("/register", (req, res) => {
-  let templateVars = {
-    urls: urlDatabase,
+  const templateVars = {
     users: users,
     user: req.session.user_id
   }
   res.render("urls_register", templateVars)
 })
-
-app.get("/login", (req, res) => {
-
-  let templateVars = {
-    urls: urlDatabase,
-    users: users,
-    user: req.session.user_id
-  }
-  res.render("urls_login", templateVars)
-})
-
-app.get("/urls/new", (req, res) => {
-  let templateVars = {
-    user: req.session.user_id,
-    users: users
-  };
-  //if not logged in
-  if (!req.session.user_id) {
-    res.redirect('/login')
-  }
-  res.render("urls_new", templateVars);
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-
-app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    users: users,
-    user: req.session.user_id
-  };
-  res.render("urls_show", templateVars);
-});
-
-
-//## POST PART ##//
-//##  <('.')>  ##//
-//## POST PART ##//
-
-
-
-app.post("/urls", (req, res) => {
-  // generate a random number, create a key-value in urlDatabase with the number as key and  the long URL (request) as value
-  let rand_url = generateRandomString()
-  updateURL(rand_url, req.body.longURL, req.session.user_id)
-  res.redirect(`/urls/${rand_url}`);
-});
-
 
 app.post("/register", (req, res) => {
   const randomId = generateRandomString()
@@ -187,8 +137,14 @@ app.post("/register", (req, res) => {
   }
 })
 
+app.get("/login", (req, res) => {
 
-
+  const templateVars = {
+    users: users,
+    user: req.session.user_id
+  }
+  res.render("urls_login", templateVars)
+})
 
 app.post('/login', (req, res) => {
   if (!emailAlreadyUsed(users, req.body.email)) {
@@ -202,32 +158,55 @@ app.post('/login', (req, res) => {
   }
 })
 
+app.get("/urls/new", (req, res) => {
+  const templateVars = {
+    user: req.session.user_id,
+    users: users
+  };
+  //if not logged in
+  if (!req.session.user_id) {
+    res.redirect('/login')
+  }
+  res.render("urls_new", templateVars);
+});
+
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+
+app.get("/urls/:shortURL", (req, res) => {
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL].longURL,
+    users: users,
+    user: req.session.user_id
+  };
+  res.render("urls_show", templateVars);
+});
+
 app.post("/urls/:shortURL", (req, res) => { //what does it do?
 
   if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
-    const shortURL = req.params.shortURL
-    const longURL = req.body.longURL
-    updateURL(shortURL, longURL, req.session.user_id)
-    res.status(302).redirect('/urls')
+    updateURL(req.params.shortURL, req.body.longURL, req.session.user_id);
+    res.status(302).redirect('/urls');
   } else {
-    res.redirect('/login')
+    res.redirect('/login');
   }
-
-})
+});
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   // if the user ID in the link is the same as the current user ID, allow to delete
   if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
-    delete urlDatabase[req.params.shortURL]
-    res.redirect("/urls")
+    delete urlDatabase[req.params.shortURL];
+    res.redirect("/urls");
   }
-
-})
+});
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id')
-  res.status(302).redirect('/login')
-})
+  res.clearCookie('user_id');
+  res.status(302).redirect('/login');
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
