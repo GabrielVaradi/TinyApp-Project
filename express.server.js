@@ -4,12 +4,24 @@ const app = express();
 const PORT = 8080;
 const cookieParser = require('cookie-parser')
 const bodyParser = require("body-parser");
+const cookieSession = require('cookie-session')
 
 app.use(cookieParser())
 app.set("view engine", "ejs")
 app.use(bodyParser.urlencoded({
   extended: true
 }));
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ["saolnas"],
+  maxAge: 24 * 60 * 60 * 1000
+}))
+
+
+
+
+
 
 
 const urlDatabase = {};
@@ -110,8 +122,8 @@ app.get("/urls", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
     users: users,
-    user: req.cookies["user_id"],
-    URL: urlsForUser(req.cookies["user_id"])
+    user: req.session.user_id,
+    URL: urlsForUser(req.session.user_id)
   }
   console.log(users)
   res.render("urls_index", templateVars);
@@ -121,7 +133,7 @@ app.get("/register", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
     users: users,
-    user: req.cookies["user_id"]
+    user: req.session.user_id
   }
   res.render("urls_register", templateVars)
 })
@@ -131,18 +143,18 @@ app.get("/login", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
     users: users,
-    user: req.cookies["user_id"]
+    user: req.session.user_id
   }
   res.render("urls_login", templateVars)
 })
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {
-    user: req.cookies["user_id"],
+    user: req.session.user_id,
     users: users
   };
   //if not logged in
-  if (!req.cookies["user_id"]) {
+  if (!req.session.user_id) {
     res.redirect('/login')
   }
   res.render("urls_new", templateVars);
@@ -158,7 +170,7 @@ app.get("/urls/:shortURL", (req, res) => {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
     users: users,
-    user: req.cookies["user_id"]
+    user: req.session.user_id
   };
   res.render("urls_show", templateVars);
 });
@@ -169,10 +181,11 @@ app.get("/urls/:shortURL", (req, res) => {
 //## POST PART ##//
 
 
+
 app.post("/urls", (req, res) => {
   // generate a random number, create a key-value in urlDatabase with the number as key and  the long URL (request) as value
   let rand_url = generateRandomString()
-  updateURL(rand_url, req.body.longURL, req.cookies['user_id'])
+  updateURL(rand_url, req.body.longURL, req.session.user_id)
   res.redirect(`/urls/${rand_url}`);
 });
 
@@ -184,7 +197,7 @@ app.post("/register", (req, res) => {
       res.send("400 : Email already used")
     } else {
       addUsers(req.body, randomId)
-      res.cookie('user_id', randomId)
+      req.session.user_id = randomId
       res.redirect('/urls')
     }
   } else {
@@ -202,17 +215,17 @@ app.post('/login', (req, res) => {
   if (!comparePasswords(users, req.body.password)) {
     res.send("403: Wrong password")
   } else {
-    res.cookie('user_id', findEmailToId(users, req.body.email))
+    req.session.user_id = findEmailToId(users, req.body.email)
     res.status(302).redirect('/urls')
   }
 })
 
 app.post("/urls/:shortURL", (req, res) => { //what does it do?
 
-  if (req.cookies['user_id'] === urlDatabase[req.params.shortURL].userID) {
+  if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
     const shortURL = req.params.shortURL
     const longURL = req.body.longURL
-    updateURL(shortURL, longURL, req.cookies['user_id'])
+    updateURL(shortURL, longURL, req.session.user_id)
     res.status(302).redirect('/urls')
   } else {
     res.redirect('/login')
@@ -222,7 +235,7 @@ app.post("/urls/:shortURL", (req, res) => { //what does it do?
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   // if the user ID in the link is the same as the current user ID, allow to delete
-  if (req.cookies['user_id'] === urlDatabase[req.params.shortURL].userID) {
+  if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
     delete urlDatabase[req.params.shortURL]
     res.redirect("/urls")
   }
