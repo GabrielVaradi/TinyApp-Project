@@ -1,41 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  <title>TinyApp</title>
-</head>
-<header>
+  <header>
     <h1><% include ./partials/_header %></h1>
-</header>
-<body style="font-size:20px; padding:50px;">
-    <h3><%='Create TinyURL'%></h3>
-    <h2>My URLs</h2>
+  </header>
+    <body style="font-size:20px; padding:50px;">
+     <h3><%='Create TinyURL'%></h3>
+     <h2>My URLs</h2>
 
-<% if(URL) { %>
-    <% Object.keys(URL).forEach(function(urlKey) { %>
-        <li>
-          <%= urlKey %> - <%= URL[urlKey].longURL %>
-          <form method="POST" action="/urls/<%= urlKey %>/delete">
+     <a href='/urls/new'><button type="submit" class="btn btn-link">Create a new short URL</button></a>
+
+        <% if(usersURL) { %>
+        <% Object.keys(usersURL).forEach(function(shortURL) { %>
+         <li>
+        <%= usersURL[shortURL].longURL %> shortURL==> <%= shortURL %>
+           <form method="POST" action="/urls/<%= shortURL %>/delete">
               <button type="submit" class="btn btn-danger">Delete</button>
-        </form>
+           </form>
 
-        <form  method="GET" action="/urls/<%= urlKey %>">
-          <button type="submit" class="btn btn-link">Edit</button>
-        </form>
-          </li>
-<% }); %>
+           <form  method="GET" action="/urls/<%= shortURL %>">
+             <button type="submit" class="btn btn-link">Edit</button>
+           </form>
+         </li>
+        <% }); %>
 
-<% }else { %>
-Please login first
-<% } %>
+        <% }else { %>
+        Please login first
+        <% } %>
 
-
-
-
-</body>
+    </body>
 </html>
 
