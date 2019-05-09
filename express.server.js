@@ -2,12 +2,12 @@ const express = require("express");
 const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080;
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
 const bodyParser = require("body-parser");
-const cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session');
 
-app.use(cookieParser())
-app.set("view engine", "ejs")
+app.use(cookieParser());
+app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({
   extended: true
 }));
@@ -16,10 +16,10 @@ app.use(cookieSession({
   name: 'session',
   keys: ["saolnas"],
   maxAge: 24 * 60 * 60 * 1000
-}))
+}));
 
 const urlDatabase = {};
-const users = {}
+const users = {};
 
 const generateRandomString = () => Math.random().toString(36).substring(7);
 
@@ -29,7 +29,7 @@ const updateURL = (shortURL, longURL, userID) => {
     'userID': userID
   }
   return urlDatabase[shortURL] = databaseObj
-}
+};
 
 const addUsers = (userObject, randomId) => {
   const newUser = {
@@ -40,7 +40,7 @@ const addUsers = (userObject, randomId) => {
   users[randomId] = newUser
 
   return [users, randomId]
-}
+};
 
 const emailAlreadyUsed = (users, emailToVerify) => {
   for (const findEmail in users) {
@@ -49,7 +49,7 @@ const emailAlreadyUsed = (users, emailToVerify) => {
     }
   }
   return false
-}
+};
 
 const comparePasswords = (users, passwordToVerify) => {
   for (const findPassword in users) {
@@ -58,7 +58,7 @@ const comparePasswords = (users, passwordToVerify) => {
     }
   }
   return false
-}
+};
 
 const findEmailToId = (users, Email) => {
   for (const findId in users) {
@@ -66,7 +66,7 @@ const findEmailToId = (users, Email) => {
       return users[findId].id
     }
   }
-}
+};
 
 const urlsForUser = id => {
   let longURLS = {}
@@ -77,7 +77,7 @@ const urlsForUser = id => {
   }
 
   return longURLS
-}
+};
 
 
 app.get("/", (req, res) => {
@@ -86,10 +86,9 @@ app.get("/", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL]
+  res.redirect(urlDatabase[req.params.shortURL]);
   // sets longURL to the value of the key (even if already randomed)
   //then redirects to the link
-  res.redirect(longURL);
 });
 
 app.get("/hello", (req, res) => {
@@ -101,15 +100,14 @@ app.get("/urls", (req, res) => {
     users: users,
     user: req.session.user_id,
     URL: urlsForUser(req.session.user_id)
-  }
-  console.log(users)
+  };
   res.render("urls_index", templateVars);
 });
 
 app.post("/urls", (req, res) => {
   // generate a random number, create a key-value in urlDatabase with the number as key and  the long URL (request) as value
-  const rand_url = generateRandomString()
-  updateURL(rand_url, req.body.longURL, req.session.user_id)
+  const rand_url = generateRandomString();
+  updateURL(rand_url, req.body.longURL, req.session.user_id);
   res.redirect(`/urls/${rand_url}`);
 });
 
@@ -118,22 +116,22 @@ app.get("/register", (req, res) => {
   const templateVars = {
     users: users,
     user: req.session.user_id
-  }
-  res.render("urls_register", templateVars)
-})
+  };
+  res.render("urls_register", templateVars);
+});
 
 app.post("/register", (req, res) => {
-  const randomId = generateRandomString()
+  const randomId = generateRandomString();
   if (req.body.email && req.body.password) {
     if (emailAlreadyUsed(users, req.body.email)) {
-      res.send("400 : Email already used")
+      res.send("400 : Email already used");
     } else {
-      addUsers(req.body, randomId)
-      req.session.user_id = randomId
-      res.redirect('/urls')
+      addUsers(req.body, randomId);
+      req.session.user_id = randomId;
+      res.redirect('/urls');
     }
   } else {
-    res.send("400 : Enter a email and a password")
+    res.send("400 : Enter a email and a password");
   }
 })
 
@@ -142,21 +140,21 @@ app.get("/login", (req, res) => {
   const templateVars = {
     users: users,
     user: req.session.user_id
-  }
+  };
   res.render("urls_login", templateVars)
-})
+});
 
 app.post('/login', (req, res) => {
   if (!emailAlreadyUsed(users, req.body.email)) {
-    res.send("403: Email cannot be found")
+    res.send("403: Email cannot be found");
   }
   if (!comparePasswords(users, req.body.password)) {
-    res.send("403: Wrong password")
+    res.send("403: Wrong password");
   } else {
-    req.session.user_id = findEmailToId(users, req.body.email)
-    res.status(302).redirect('/urls')
+    req.session.user_id = findEmailToId(users, req.body.email);
+    res.status(302).redirect('/urls');
   }
-})
+});
 
 app.get("/urls/new", (req, res) => {
   const templateVars = {
@@ -165,7 +163,7 @@ app.get("/urls/new", (req, res) => {
   };
   //if not logged in
   if (!req.session.user_id) {
-    res.redirect('/login')
+    res.redirect('/login');
   }
   res.render("urls_new", templateVars);
 });
