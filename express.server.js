@@ -41,7 +41,8 @@ const updateURL = (shortURL, longURL, userID) => {
   return urlDatabase[shortURL] = databaseObj;
 };
 
-const addUsers = (userObject, randomId) => {
+const addUsers = (userObject) => {
+  const randomId = generateRandomString();
   const newUser = {
     id: randomId,
     email: userObject.email,
@@ -49,7 +50,7 @@ const addUsers = (userObject, randomId) => {
   }
   users[randomId] = newUser;
 
-  return [users, randomId];
+  return randomId;
 };
 
 const emailAlreadyUsed = (users, emailToVerify) => {
@@ -164,12 +165,11 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  const randomId = generateRandomString();
   if (req.body.email && req.body.password) {
     if (emailAlreadyUsed(users, req.body.email)) {
       res.status(400).send('400 : Email already used <a href=/register><button type="submit" class="btn btn-link">Try again</button></a>');
     } else {
-      addUsers(req.body, randomId);
+      const randomId = addUsers(req.body);
       req.session.user_id = randomId;
       res.status(302).redirect('/urls');
     }
