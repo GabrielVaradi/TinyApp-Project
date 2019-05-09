@@ -79,10 +79,8 @@ const urlsForUser = id => {
 };
 
 const findUserIDWithShortURL = id => {
-  for (const shortURL in urlDatabase){
-    console.log(shortURL)
-    console.log(id)
-    if(shortURL === id){
+  for (const shortURL in urlDatabase) {
+    if (shortURL === id) {
       return urlDatabase[shortURL].userID
     }
   }
@@ -102,18 +100,21 @@ const checkIfIdExist = randomID => {
 
 app.get('/', (req, res) => {
   if (req.session.user_id) {
-    res.redirect('urls');
+    res.status(302).redirect('urls');
   } else {
-    res.redirect('/login');
+    res.status(302).redirect('/login');
   }
 });
 
 app.get('/u/:shortURL', (req, res) => {
-  res.redirect(urlDatabase[req.params.shortURL]);
+  if (!urlDatabase[req.params.shortURL]) {
+    res.status(400).send('400: This short URL does not exist! <a href=/urls><button type="submit" class="btn btn-link">Your URLs</button></a>')
+  }
+  res.status(302).redirect(urlDatabase[req.params.shortURL].longURL);
 });
 
 app.get('/hello', (req, res) => {
-  res.send('<html><body>Hello <b>World</b></body></html>\n');
+  res.status(200).send('<html><body>Hello <b>World</b></body></html>\n');
 });
 
 app.get('/urls', (req, res) => {
@@ -123,17 +124,21 @@ app.get('/urls', (req, res) => {
       user: req.session.user_id,
       usersURL: urlsForUser(req.session.user_id)
     };
-    res.render('urls_index', templateVars);
+    res.status(200).render('urls_index', templateVars);
   } else {
-    res.redirect('/login')
+    res.status(302).redirect('/login')
   }
 });
 
 app.post('/urls', (req, res) => {
   // generate a random number, create a key-value in urlDatabase with the number as key and  the long URL (request) as value
-  const rand_url = generateRandomString();
-  updateURL(rand_url, req.body.longURL, req.session.user_id);
-  res.redirect(`/urls/${rand_url}`);
+  if (!req.session.user_id) {
+    res.status(403).send('403: Please login first <a href=/login><button type="submit" class="btn btn-link">Login</button></a>')
+  } else {
+    const rand_url = generateRandomString();
+    updateURL(rand_url, req.body.longURL, req.session.user_id);
+    res.status(302).redirect(`/urls/${rand_url}`);
+  }
 });
 
 
@@ -142,21 +147,21 @@ app.get('/register', (req, res) => {
     users: users,
     user: req.session.user_id
   };
-  res.render('urls_register', templateVars);
+  res.status(200).render('urls_register', templateVars);
 });
 
 app.post('/register', (req, res) => {
   const randomId = generateRandomString();
   if (req.body.email && req.body.password) {
     if (emailAlreadyUsed(users, req.body.email)) {
-      res.send('400 : Email already used');
+      res.status(400).send('400 : Email already used <a href=/register><button type="submit" class="btn btn-link">Try again</button></a>');
     } else {
       addUsers(req.body, randomId);
       req.session.user_id = randomId;
-      res.redirect('/urls');
+      res.status(302).redirect('/urls');
     }
   } else {
-    res.send('400 : Enter a email and a password');
+    res.status(400).send('400 : Please enter an email and a password <a href=/register><button type="submit" class="btn btn-link">Try again</button></a>');
   }
 })
 
@@ -166,15 +171,15 @@ app.get('/login', (req, res) => {
     users: users,
     user: req.session.user_id
   };
-  res.render('urls_login', templateVars)
+  res.status(200).render('urls_login', templateVars)
 });
 
 app.post('/login', (req, res) => {
   if (!emailAlreadyUsed(users, req.body.email)) {
-    res.send('403: Email cannot be found');
+    res.status(403).send('403: Email cannot be found <a href=/login><button type="submit" class="btn btn-link">Try again</button></a>');
   }
   if (!comparePasswords(users, req.body.password)) {
-    res.send('403: Wrong password');
+    res.status(403).send('403: Wrong password <a href=/login><button type="submit" class="btn btn-link">Try again</button></a>');
   } else {
     req.session.user_id = findEmailMatchingId(users, req.body.email);
     res.status(302).redirect('/urls');
@@ -188,9 +193,9 @@ app.get('/urls/new', (req, res) => {
   };
   //if not logged in
   if (!req.session.user_id) {
-    res.redirect('/login');
+    res.status(302).redirect('/login');
   }
-  res.render('urls_new', templateVars);
+  res.status(200).render('urls_new', templateVars);
 });
 
 app.get('/urls.json', (req, res) => {
@@ -200,13 +205,13 @@ app.get('/urls.json', (req, res) => {
 
 app.get('/urls/:shortURL', (req, res) => {
   if (!checkIfIdExist(req.params.shortURL)) {
-    res.send('404 Not found ;)')
+    res.status(404).send('404: Not found ;) <a href=/urls><button type="submit" class="btn btn-link">Your URLs</button></a>')
   }
   if (!req.session.user_id) {
-    res.send('Please login first')
+    res.status(403).send('403: Please login first <a href=/login><button type="submit" class="btn btn-link">Login</button></a>')
   }
   if (findUserIDWithShortURL(req.params.shortURL) !== req.session.user_id) {
-    res.send('You do not own this short URL!')
+    res.status(403).send('403: You do not own this short URL! <a href=/urls><button type="submit" class="btn btn-link">Your URLs</button></a>')
   } else {
     const templateVars = {
       shortURL: req.params.shortURL,
@@ -214,7 +219,7 @@ app.get('/urls/:shortURL', (req, res) => {
       users: users,
       user: req.session.user_id
     };
-    res.render('urls_show', templateVars);
+    res.status(200).render('urls_show', templateVars);
   }
 });
 
@@ -224,7 +229,7 @@ app.post('/urls/:shortURL', (req, res) => { //what does it do?
     updateURL(req.params.shortURL, req.body.longURL, req.session.user_id);
     res.status(302).redirect('/urls');
   } else {
-    res.redirect('/login');
+    res.status(302).redirect('/login');
   }
 });
 
@@ -232,9 +237,9 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   // if the user ID in the link is the same as the current user ID, allow to delete
   if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
     delete urlDatabase[req.params.shortURL];
-    res.redirect('/urls');
+    res.status(302).redirect('/urls');
   } else {
-    res.redirect('/login')
+    res.status(403).send('403: Please login first <a href=/login><button type="submit" class="btn btn-link">Login</button></a>')
   }
 });
 
