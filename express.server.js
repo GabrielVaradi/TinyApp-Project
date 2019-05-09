@@ -13,8 +13,7 @@ app.use(bodyParser.urlencoded({
 
 
 var urlDatabase = {
-  // "b2xVn2": "http://www.lighthouselabs.ca",
-  // "9sm5xK": "http://www.google.com"
+
 };
 
 const users = {
@@ -160,7 +159,7 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   let templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     users: users,
     user: req.cookies["user_id"]
   };
@@ -209,6 +208,7 @@ app.post('/login', (req, res) => {
 })
 
 app.post("/urls/:shortURL", (req, res) => { //what does it do?
+
   const shortURL = req.params.shortURL
   const longURL = req.body.longURL
   updateURL(shortURL, longURL, req.cookies['user_id'])
