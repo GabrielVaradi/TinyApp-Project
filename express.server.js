@@ -262,26 +262,21 @@ app.get('/login', (req, res) => {
   }
 });
 
-// const authenticate = (email, password) => {
-//   const user = findUser(email);
-//   if (user && user.password === password) {
-//     return user.id
-//   }
-//   return false
-// }
 
 app.post('/login', (req, res) => {
+
   const {
     email,
     password
   } = req.body
-  if (!findUser(users, email)) {
+  let user = findUser(users, email)
+  if (!user) {
     res.status(403).send('403: Email cannot be found <a href=/login><button type="submit" class="btn btn-link">Try again</button></a>');
   }
   if (!comparePasswords(users, password)) {
     res.status(403).send('403: Wrong password <a href=/login><button type="submit" class="btn btn-link">Try again</button></a>');
   } else {
-    req.session.user_id = findUser(users, email).id;
+    req.session.user_id = user.id;
     res.status(302).redirect('/urls');
   }
 });
