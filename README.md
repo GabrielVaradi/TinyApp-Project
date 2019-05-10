@@ -6,7 +6,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 !["Your URLs page"]
 !["The edit URLs page"]
-!["Login page"]
+!["Login page"](https://github.com/GabrielVaradi/TinyApp-Project/blob/master/docs/Login-page.png?raw=true)
 
 ### **Dependencies**
 
