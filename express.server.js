@@ -18,6 +18,9 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000
 }));
 
+
+//DELETE COOKIE PARSER
+
 const urlDatabase = {};
 const users = {};
 
@@ -79,7 +82,7 @@ const findEmailMatchingId = (users, Email) => {
   }
 };
 
-const urlsForUser = id => {
+const urlsForUniquerUser = id => {
   let longURLS = {};
   for (const shortURL in urlDatabase) {
     if (urlDatabase[shortURL].userID === id) {
@@ -133,7 +136,7 @@ app.get('/urls', (req, res) => {
     const templateVars = {
       users: users,
       user: req.session.user_id,
-      usersURL: urlsForUser(req.session.user_id)
+      usersURL: urlsForUniqueUser(req.session.user_id)
     };
     res.status(200).render('urls_index', templateVars);
   } else {
