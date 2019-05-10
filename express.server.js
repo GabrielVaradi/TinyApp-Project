@@ -1,3 +1,4 @@
+
 const express = require('express');
 const bcrypt = require('bcrypt');
 const app = express();
@@ -26,11 +27,13 @@ const users = {};
 
 const generateRandomString = () => Math.random().toString(36).substring(7);
 
-const createShortURL = (longURL, userID) => {
+const createShortURL = (longURL, userID, date, time) => {
   const rand_url = generateRandomString();
   databaseObj = {
     'longURL': longURL,
-    'userID': userID
+    'userID': userID,
+    'date': date,
+    'time': time
   }
   urlDatabase[rand_url] = databaseObj
   return rand_url;
@@ -40,6 +43,7 @@ const updateURL = (shortURL, longURL, userID) => {
   databaseObj = {
     'longURL': longURL,
     'userID': userID
+
   }
   return urlDatabase[shortURL] = databaseObj;
 };
@@ -82,7 +86,7 @@ const findEmailMatchingId = (users, Email) => {
   }
 };
 
-const urlsForUniquerUser = id => {
+const urlsForUniqueUser = id => {
   let longURLS = {};
   for (const shortURL in urlDatabase) {
     if (urlDatabase[shortURL].userID === id) {
@@ -109,6 +113,26 @@ const checkIfIdExist = randomID => {
   }
   return false;
 }
+
+const getCreateDate = () => {
+  const today = new Date()
+  const dd = today.getDate();
+  const mm = today.getMonth() + 1;
+  const yyyy = today.getFullYear();
+
+  return `${dd}/${mm}/${yyyy}`
+}
+
+const getCreateTime = () => {
+  const today = new Date()
+  const hours = today.getHours();
+  const min = today.getMinutes();
+  const sec = today.getSeconds();
+
+  return `${hours} hours ${min} minutes and ${sec} seconds`
+
+}
+
 
 
 
@@ -149,7 +173,9 @@ app.post('/urls', (req, res) => {
   if (!req.session.user_id) {
     res.status(403).send('403: Please login first <a href=/login><button type="submit" class="btn btn-link">Login</button></a>')
   } else {
-    const rand_url = createShortURL(req.body.longURL, req.session.user_id);
+    const date = getCreateDate()
+    const time = getCreateTime()
+    const rand_url = createShortURL(req.body.longURL, req.session.user_id, date, time);
     res.status(302).redirect(`/urls/${rand_url}`);
   }
 });
@@ -237,8 +263,11 @@ app.get('/urls/:shortURL', (req, res) => {
       shortURL: req.params.shortURL,
       longURL: urlDatabase[req.params.shortURL].longURL,
       users: users,
-      user: req.session.user_id
+      user: req.session.user_id,
+      date: urlDatabase[req.params.shortURL].date,
+      time: urlDatabase[req.params.shortURL].time
     };
+
     res.status(200).render('urls_show', templateVars);
   }
 });
@@ -246,6 +275,7 @@ app.get('/urls/:shortURL', (req, res) => {
 app.post('/urls/:shortURL', (req, res) => { //what does it do?
 
   if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
+
     updateURL(req.params.shortURL, req.body.longURL, req.session.user_id);
     res.status(302).redirect('/urls');
   } else {
