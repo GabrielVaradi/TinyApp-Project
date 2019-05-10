@@ -1,9 +1,10 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-const app = express();
-const PORT = 8080;
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
+const app = express();
+const PORT = 8080;
+
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({
@@ -48,12 +49,15 @@ const updateURL = (shortURL, longURL, userID, nbOfVisits) => {
   return urlDatabase[shortURL] = databaseObj;
 };
 
-const addUsers = (userObject) => {
+const addUsers = ({
+  email,
+  password
+}) => {
   const randomId = generateRandomString();
   const newUser = {
     id: randomId,
-    email: userObject.email,
-    password: bcrypt.hashSync(userObject.password, 10)
+    email: email,
+    password: bcrypt.hashSync(password, 10)
   }
   users[randomId] = newUser;
 
@@ -164,6 +168,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/u/:shortURL', (req, res) => {
+  // const {shortURL} = req.params;
   if (!urlDatabase[req.params.shortURL]) {
     res.status(400).send('400: This short URL does not exist! <a href=/urls><button type="submit" class="btn btn-link">Your URLs</button></a>')
   }
@@ -215,6 +220,8 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
+
+
   if (req.body.email && req.body.password) {
     if (emailAlreadyUsed(users, req.body.email)) {
       res.status(400).send('400 : Email already used <a href=/register><button type="submit" class="btn btn-link">Try again</button></a>');
@@ -240,6 +247,14 @@ app.get('/login', (req, res) => {
     res.status(302).redirect('/urls')
   }
 });
+
+// const authenticate = (email, password) => {
+//   const user = findUser(email);
+//   if (user && user.password === password) {
+//     return user.id
+//   }
+//   return false
+// }
 
 app.post('/login', (req, res) => {
   if (!emailAlreadyUsed(users, req.body.email)) {
