@@ -9,9 +9,9 @@
 
 <nav class="navbar navbar-default" role="navigation">
   <div class="container-fluid">
-    <% if(users[user]){ %>
+    <% if(user){ %>
       <form class="form-inline" method="POST" action="/logout %>">
-        <h2> Welcome <%= users[user].email %> !</h2>
+        <h2> Welcome <%= user.email %> !</h2>
         <button type="submit" class="btn btn-primary">Logout :(</button>
 
       </form>
