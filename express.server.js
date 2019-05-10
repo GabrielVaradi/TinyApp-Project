@@ -27,7 +27,7 @@ const uniqueVisitors = {
 const generateRandomString = () => Math.random().toString(36).substring(7);
 
 const createShortURL = (longURL, userID, date, time) => {
-  const rand_url = generateRandomString();
+  const shortURL = generateRandomString();
   databaseObj = {
     'longURL': longURL,
     'userID': userID,
@@ -35,8 +35,8 @@ const createShortURL = (longURL, userID, date, time) => {
     'time': time,
     'visits': 0
   }
-  urlDatabase[rand_url] = databaseObj
-  return rand_url;
+  urlDatabase[shortURL] = databaseObj
+  return shortURL;
 };
 
 const updateURL = (shortURL, longURL, userID, nbOfVisits) => {
@@ -49,10 +49,7 @@ const updateURL = (shortURL, longURL, userID, nbOfVisits) => {
   return urlDatabase[shortURL] = databaseObj;
 };
 
-const addUsers = ({
-  email,
-  password
-}) => {
+const addUsers = ({email, password}) => {
   const randomId = generateRandomString();
   const newUser = {
     id: randomId,
@@ -64,13 +61,14 @@ const addUsers = ({
   return randomId;
 };
 
-const emailAlreadyUsed = (users, emailToVerify) => {
-  for (const IDKeys in users) {
-    if (emailToVerify === users[IDKeys].email) {
-      return true;
+
+const findUser = (users, email) => {
+  for (const findId in users) {
+    if (email === users[findId].email) {
+      return users[findId];
     }
   }
-  return false;
+  return false
 };
 
 const comparePasswords = (users, passwordToVerify) => {
@@ -82,13 +80,6 @@ const comparePasswords = (users, passwordToVerify) => {
   return false;
 };
 
-const findEmailMatchingId = (users, Email) => {
-  for (const findId in users) {
-    if (Email === users[findId].email) {
-      return users[findId].id;
-    }
-  }
-};
 
 const urlsForUniqueUser = id => {
   let longURLS = {};
@@ -177,10 +168,6 @@ app.get('/u/:shortURL', (req, res) => {
   res.status(302).redirect(urlDatabase[req.params.shortURL].longURL);
 });
 
-app.get('/hello', (req, res) => {
-  res.status(200).send('<html><body>Hello <b>World</b></body></html>\n');
-});
-
 app.get('/urls', (req, res) => {
   if (req.session.user_id) {
     const templateVars = {
@@ -201,8 +188,8 @@ app.post('/urls', (req, res) => {
   } else {
     const date = getCreateDate()
     const time = getCreateTime()
-    const rand_url = createShortURL(req.body.longURL, req.session.user_id, date, time);
-    res.status(302).redirect(`/urls/${rand_url}`);
+    const shortURL = createShortURL(req.body.longURL, req.session.user_id, date, time);
+    res.status(302).redirect(`/urls/${shortURL}`);
   }
 });
 
@@ -223,7 +210,7 @@ app.post('/register', (req, res) => {
 
 
   if (req.body.email && req.body.password) {
-    if (emailAlreadyUsed(users, req.body.email)) {
+    if (findUser(users, req.body.email)) {
       res.status(400).send('400 : Email already used <a href=/register><button type="submit" class="btn btn-link">Try again</button></a>');
     } else {
       const randomId = addUsers(req.body);
@@ -257,13 +244,13 @@ app.get('/login', (req, res) => {
 // }
 
 app.post('/login', (req, res) => {
-  if (!emailAlreadyUsed(users, req.body.email)) {
+  if (!findUser(users, req.body.email)) {
     res.status(403).send('403: Email cannot be found <a href=/login><button type="submit" class="btn btn-link">Try again</button></a>');
   }
   if (!comparePasswords(users, req.body.password)) {
     res.status(403).send('403: Wrong password <a href=/login><button type="submit" class="btn btn-link">Try again</button></a>');
   } else {
-    req.session.user_id = findEmailMatchingId(users, req.body.email);
+    req.session.user_id = findUser(users, req.body.email).id;
     res.status(302).redirect('/urls');
   }
 });
