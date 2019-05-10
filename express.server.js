@@ -27,6 +27,10 @@ const uniqueVisitors = {
 const generateRandomString = () => Math.random().toString(36).substring(7);
 
 const createShortURL = (longURL, userID, date, time) => {
+  if (!longURL.includes("https://")) {
+   longURL = `https://${longURL}`
+  }
+
   const shortURL = generateRandomString();
   databaseObj = {
     'longURL': longURL,
@@ -272,8 +276,7 @@ app.post('/login', (req, res) => {
   let user = findUser(users, email)
   if (!user) {
     res.status(403).send('403: Email cannot be found <a href=/login><button type="submit" class="btn btn-link">Try again</button></a>');
-  }
-  if (!comparePasswords(users, password)) {
+  } else if (!comparePasswords(users, password)) {
     res.status(403).send('403: Wrong password <a href=/login><button type="submit" class="btn btn-link">Try again</button></a>');
   } else {
     req.session.user_id = user.id;
