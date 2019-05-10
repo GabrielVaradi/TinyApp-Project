@@ -26,7 +26,11 @@ const uniqueVisitors = {
 
 const generateRandomString = () => Math.random().toString(36).substring(7);
 
-const createShortURL = (longURL, userID, date, time) => {
+const createShortURL = (longURL, userID, date, time, res) => {
+  if (!longURL){
+    res.status(403).send('403: Please enter an URL like so : reddit.com/r/DotA2 <a href=/urls/new><button type="submit" class="btn btn-link">Create URL</button></a>')
+    return
+  }
   if (!longURL.includes("https://")) {
    longURL = `https://${longURL}`
   }
@@ -212,7 +216,7 @@ app.post('/urls', (req, res) => {
   } else {
     const date = getCreateDate()
     const time = getCreateTime()
-    const shortURL = createShortURL(req.body.longURL, user_id, date, time);
+    const shortURL = createShortURL(req.body.longURL, user_id, date, time, res);
     res.status(302).redirect(`/urls/${shortURL}`);
   }
 });
