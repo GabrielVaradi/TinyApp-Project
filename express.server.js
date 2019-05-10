@@ -1,13 +1,10 @@
-
 const express = require('express');
 const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080;
-const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 
-app.use(cookieParser());
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({
   extended: true
@@ -20,10 +17,11 @@ app.use(cookieSession({
 }));
 
 
-//DELETE COOKIE PARSER
-
 const urlDatabase = {};
 const users = {};
+const uniqueVisitors = {
+  email: "userID"
+};
 
 const generateRandomString = () => Math.random().toString(36).substring(7);
 
@@ -33,16 +31,18 @@ const createShortURL = (longURL, userID, date, time) => {
     'longURL': longURL,
     'userID': userID,
     'date': date,
-    'time': time
+    'time': time,
+    'visits': 0
   }
   urlDatabase[rand_url] = databaseObj
   return rand_url;
 };
 
-const updateURL = (shortURL, longURL, userID) => {
+const updateURL = (shortURL, longURL, userID, nbOfVisits) => {
   databaseObj = {
     'longURL': longURL,
-    'userID': userID
+    'userID': userID,
+    'visits': nbOfVisits
 
   }
   return urlDatabase[shortURL] = databaseObj;
@@ -61,8 +61,8 @@ const addUsers = (userObject) => {
 };
 
 const emailAlreadyUsed = (users, emailToVerify) => {
-  for (const findEmail in users) {
-    if (emailToVerify === users[findEmail].email) {
+  for (const IDKeys in users) {
+    if (emailToVerify === users[IDKeys].email) {
       return true;
     }
   }
@@ -130,9 +130,28 @@ const getCreateTime = () => {
   const sec = today.getSeconds();
 
   return `${hours} hours ${min} minutes and ${sec} seconds`
-
 }
 
+const incrementVisits = urlDatabase => {
+  return urlDatabase.visits += 1
+}
+
+const updateUniqueVisitors = (email, userID) => {
+  return uniqueVisitors[email] = userID
+}
+
+const incrementUniqueVisits = (email, userID) => {
+
+  for (const emails in uniqueVisitors) {
+
+    if (userID === uniqueVisitors[emails]) {
+      return
+    } else {
+      updateUniqueVisitors(email, userID)
+      return
+    }
+  }
+}
 
 
 
@@ -148,6 +167,8 @@ app.get('/u/:shortURL', (req, res) => {
   if (!urlDatabase[req.params.shortURL]) {
     res.status(400).send('400: This short URL does not exist! <a href=/urls><button type="submit" class="btn btn-link">Your URLs</button></a>')
   }
+  incrementUniqueVisits(req.session.user_id, users[req.session.user_id].email)
+  incrementVisits(urlDatabase[req.params.shortURL])
   res.status(302).redirect(urlDatabase[req.params.shortURL].longURL);
 });
 
@@ -265,7 +286,9 @@ app.get('/urls/:shortURL', (req, res) => {
       users: users,
       user: req.session.user_id,
       date: urlDatabase[req.params.shortURL].date,
-      time: urlDatabase[req.params.shortURL].time
+      time: urlDatabase[req.params.shortURL].time,
+      visits: urlDatabase[req.params.shortURL].visits,
+      uniqueVisitors: Object.keys(uniqueVisitors).length - 1
     };
 
     res.status(200).render('urls_show', templateVars);

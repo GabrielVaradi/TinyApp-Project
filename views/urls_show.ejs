@@ -7,7 +7,8 @@
 <body style="font-size:20px; padding:50px;">
     <h3>Update URL%></h3>
     <h4><%= "ShortURL" %> : <%= shortURL %></h4>
-    <h5> Created the <%= date %> at <%= time %></h5>
+    <h5> Created the <%= date %> at <%= time %> ---- Visited <%= visits %> times by <%= uniqueVisitors %> unique visitors!</h5>
+
 
 
 <form class="form-inline" action="/urls/<%= shortURL %>" method="POST">
