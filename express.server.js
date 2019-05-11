@@ -24,8 +24,10 @@ const uniqueVisitors = {
   email: "userID"
 };
 
+//Generates a random string of letters and/or numbers
 const generateRandomString = () => Math.random().toString(36).substring(7);
 
+//Creates a short URL linked to a long URL and put it in the urlDatabase
 const createShortURL = (longURL, userID, date, time, res) => {
   if (!longURL){
     res.status(403).send('403: Please enter an URL like so : reddit.com/r/DotA2 <a href=/urls/new><button type="submit" class="btn btn-link">Create URL</button></a>')
@@ -47,6 +49,7 @@ const createShortURL = (longURL, userID, date, time, res) => {
   return shortURL;
 };
 
+//Updates the longURL and the number of visits
 const updateURL = (shortURL, longURL, userID, nbOfVisits) => {
   databaseObj = {
     'longURL': longURL,
@@ -57,6 +60,7 @@ const updateURL = (shortURL, longURL, userID, nbOfVisits) => {
   return urlDatabase[shortURL] = databaseObj;
 };
 
+//Adds a user to the user database
 const addUsers = ({
   email,
   password
@@ -72,7 +76,7 @@ const addUsers = ({
   return randomId;
 };
 
-
+// with user information using his email
 const findUser = (users, email) => {
   for (const findId in users) {
     if (email === users[findId].email) {
@@ -82,6 +86,7 @@ const findUser = (users, email) => {
   return false;
 };
 
+//compare the entered password and the users password to see if they match
 const comparePasswords = (users, passwordToVerify) => {
   for (const findPassword in users) {
     if (bcrypt.compareSync(passwordToVerify, users[findPassword].password)) {
@@ -91,15 +96,7 @@ const comparePasswords = (users, passwordToVerify) => {
   return false;
 };
 
-// const authenticate = (email, password) => {
-//   const user = findUser(email);
-//   if (user && bcrypt.compareSync(passwordToVerify, users[findPassword].password)) {
-//     return user.id
-//   }
-//   return false
-// }
-
-
+//Lets only the user access their short url
 const urlsForUniqueUser = id => {
   let uniqueUserURL = {};
   for (const shortURL in urlDatabase) {
@@ -110,6 +107,7 @@ const urlsForUniqueUser = id => {
   return uniqueUserURL;
 };
 
+//find a user using his short URLs
 const findUserIDWithShortURL = id => {
   for (const shortURL in urlDatabase) {
     if (shortURL === id) {
@@ -119,6 +117,7 @@ const findUserIDWithShortURL = id => {
   return false
 }
 
+//check if a short URL exists
 const checkIfShortURLExist = randomID => {
   for (const shortURL in urlDatabase) {
     if (shortURL === randomID) {
@@ -128,6 +127,7 @@ const checkIfShortURLExist = randomID => {
   return false;
 }
 
+//create a date in form dd/mm/yyy
 const getCreateDate = () => {
   const today = new Date()
   const dd = today.getDate();
@@ -137,6 +137,7 @@ const getCreateDate = () => {
   return `${dd}/${mm}/${yyyy}`
 }
 
+//display the time in hours, minutes and seconds
 const getCreateTime = () => {
   const today = new Date()
   const hours = today.getHours();
@@ -146,14 +147,15 @@ const getCreateTime = () => {
   return `${hours} hours ${min} minutes and ${sec} seconds`
 }
 
+//increments the number of visit on a short url
 const incrementVisits = urlDatabase => {
   return urlDatabase.visits += 1
 }
-
+//updates the unique visitors database
 const updateUniqueVisitors = (email, userID) => {
   return uniqueVisitors[email] = userID
 }
-
+//increments the number of unique visitors on a short url
 const incrementUniqueVisits = (email, userID) => {
 
   for (const emails in uniqueVisitors) {
