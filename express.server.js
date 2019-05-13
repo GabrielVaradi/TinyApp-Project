@@ -189,8 +189,10 @@ app.get('/u/:shortURL', (req, res) => {
   if (!urlDatabase[shortURL]) {
     res.status(400).send('400: This short URL does not exist! <a href=/urls><button type="submit" class="btn btn-link">Your URLs</button></a>')
   }
+  if(user_id){
   incrementUniqueVisits(user_id, users[user_id].email)
   incrementVisits(urlDatabase[shortURL])
+  }
   res.status(302).redirect(urlDatabase[shortURL].longURL);
 });
 
